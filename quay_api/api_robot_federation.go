@@ -20,396 +20,57 @@ import (
 	"strings"
 )
 
-// TagAPIService TagAPI service
-type TagAPIService service
-
-type ApiChangeTagRequest struct {
-	ctx        context.Context
-	ApiService *TagAPIService
-	repository string
-	tag        string
-	body       *map[string]interface{}
-}
-
-// Request body contents.
-func (r ApiChangeTagRequest) Body(body map[string]interface{}) ApiChangeTagRequest {
-	r.body = &body
-	return r
-}
-
-func (r ApiChangeTagRequest) Execute() (*http.Response, error) {
-	return r.ApiService.ChangeTagExecute(r)
-}
-
-/*
-ChangeTag Method for ChangeTag
-
-Change which image a tag points to or create a new tag.
-
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param repository The full path of the repository. e.g. namespace/name
-	@param tag The name of the tag
-	@return ApiChangeTagRequest
-*/
-func (a *TagAPIService) ChangeTag(ctx context.Context, repository string, tag string) ApiChangeTagRequest {
-	return ApiChangeTagRequest{
-		ApiService: a,
-		ctx:        ctx,
-		repository: repository,
-		tag:        tag,
-	}
-}
-
-// Execute executes the request
-func (a *TagAPIService) ChangeTagExecute(r ApiChangeTagRequest) (*http.Response, error) {
-	var (
-		localVarHTTPMethod = http.MethodPut
-		localVarPostBody   interface{}
-		formFiles          []formFile
-	)
-
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TagAPIService.ChangeTag")
-	if err != nil {
-		return nil, &GenericOpenAPIError{error: err.Error()}
-	}
-
-	localVarPath := localBasePath + "/api/v1/repository/{repository}/tag/{tag}"
-	localVarPath = strings.Replace(localVarPath, "{"+"repository"+"}", url.PathEscape(parameterValueToString(r.repository, "repository")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"tag"+"}", url.PathEscape(parameterValueToString(r.tag, "tag")), -1)
-
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-	if r.body == nil {
-		return nil, reportError("body is required and must be specified")
-	}
-
-	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
-
-	// set Content-Type header
-	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
-	if localVarHTTPContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
-	}
-
-	// to determine the Accept header
-	localVarHTTPHeaderAccepts := []string{"*/*"}
-
-	// set Accept header
-	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
-	if localVarHTTPHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
-	}
-	// body params
-	localVarPostBody = r.body
-	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
-	if err != nil {
-		return nil, err
-	}
-
-	localVarHTTPResponse, err := a.client.callAPI(req)
-	if err != nil || localVarHTTPResponse == nil {
-		return localVarHTTPResponse, err
-	}
-
-	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
-	localVarHTTPResponse.Body.Close()
-	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
-	if err != nil {
-		return localVarHTTPResponse, err
-	}
-
-	if localVarHTTPResponse.StatusCode >= 300 {
-		newErr := &GenericOpenAPIError{
-			body:  localVarBody,
-			error: localVarHTTPResponse.Status,
-		}
-		if localVarHTTPResponse.StatusCode == 400 {
-			var v ApiError
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode == 401 {
-			var v ApiError
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode == 403 {
-			var v ApiError
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode == 404 {
-			var v ApiError
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarHTTPResponse, newErr
-		}
-		return localVarHTTPResponse, newErr
-	}
-
-	return localVarHTTPResponse, nil
-}
-
-type ApiDeleteFullTagRequest struct {
-	ctx        context.Context
-	ApiService *TagAPIService
-	repository string
-	tag        string
-}
-
-func (r ApiDeleteFullTagRequest) Execute() (*http.Response, error) {
-	return r.ApiService.DeleteFullTagExecute(r)
-}
-
-/*
-DeleteFullTag Method for DeleteFullTag
-
-Delete the specified repository tag.
-
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param repository The full path of the repository. e.g. namespace/name
-	@param tag The name of the tag
-	@return ApiDeleteFullTagRequest
-*/
-func (a *TagAPIService) DeleteFullTag(ctx context.Context, repository string, tag string) ApiDeleteFullTagRequest {
-	return ApiDeleteFullTagRequest{
-		ApiService: a,
-		ctx:        ctx,
-		repository: repository,
-		tag:        tag,
-	}
-}
-
-// Execute executes the request
-func (a *TagAPIService) DeleteFullTagExecute(r ApiDeleteFullTagRequest) (*http.Response, error) {
-	var (
-		localVarHTTPMethod = http.MethodDelete
-		localVarPostBody   interface{}
-		formFiles          []formFile
-	)
-
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TagAPIService.DeleteFullTag")
-	if err != nil {
-		return nil, &GenericOpenAPIError{error: err.Error()}
-	}
-
-	localVarPath := localBasePath + "/api/v1/repository/{repository}/tag/{tag}"
-	localVarPath = strings.Replace(localVarPath, "{"+"repository"+"}", url.PathEscape(parameterValueToString(r.repository, "repository")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"tag"+"}", url.PathEscape(parameterValueToString(r.tag, "tag")), -1)
-
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
-
-	// set Content-Type header
-	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
-	if localVarHTTPContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
-	}
-
-	// to determine the Accept header
-	localVarHTTPHeaderAccepts := []string{"*/*"}
-
-	// set Accept header
-	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
-	if localVarHTTPHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
-	}
-	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
-	if err != nil {
-		return nil, err
-	}
-
-	localVarHTTPResponse, err := a.client.callAPI(req)
-	if err != nil || localVarHTTPResponse == nil {
-		return localVarHTTPResponse, err
-	}
-
-	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
-	localVarHTTPResponse.Body.Close()
-	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
-	if err != nil {
-		return localVarHTTPResponse, err
-	}
-
-	if localVarHTTPResponse.StatusCode >= 300 {
-		newErr := &GenericOpenAPIError{
-			body:  localVarBody,
-			error: localVarHTTPResponse.Status,
-		}
-		if localVarHTTPResponse.StatusCode == 400 {
-			var v ApiError
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode == 401 {
-			var v ApiError
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode == 403 {
-			var v ApiError
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode == 404 {
-			var v ApiError
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarHTTPResponse, newErr
-		}
-		return localVarHTTPResponse, newErr
-	}
-
-	return localVarHTTPResponse, nil
-}
-
-type ApiListRepoTagsRequest struct {
+type ApiGetOrgRobotFederationRequest struct {
 	ctx            context.Context
-	ApiService     *TagAPIService
-	repository     string
-	onlyActiveTags *bool
-	page           *int32
-	limit          *int32
-	filterTagName  *string
-	specificTag    *string
+	ApiService     *RobotAPIService
+	robotShortname string
+	orgname        string
 }
 
-// Filter to only active tags.
-func (r ApiListRepoTagsRequest) OnlyActiveTags(onlyActiveTags bool) ApiListRepoTagsRequest {
-	r.onlyActiveTags = &onlyActiveTags
-	return r
-}
-
-// Page index for the results. Default 1.
-func (r ApiListRepoTagsRequest) Page(page int32) ApiListRepoTagsRequest {
-	r.page = &page
-	return r
-}
-
-// Limit to the number of results to return per page. Max 100.
-func (r ApiListRepoTagsRequest) Limit(limit int32) ApiListRepoTagsRequest {
-	r.limit = &limit
-	return r
-}
-
-// Syntax: &lt;op&gt;:&lt;name&gt; Filters the tag names based on the operation.&lt;op&gt; can be &#39;like&#39; or &#39;eq&#39;.
-func (r ApiListRepoTagsRequest) FilterTagName(filterTagName string) ApiListRepoTagsRequest {
-	r.filterTagName = &filterTagName
-	return r
-}
-
-// Filters the tags to the specific tag.
-func (r ApiListRepoTagsRequest) SpecificTag(specificTag string) ApiListRepoTagsRequest {
-	r.specificTag = &specificTag
-	return r
-}
-
-func (r ApiListRepoTagsRequest) Execute() (*http.Response, error) {
-	return r.ApiService.ListRepoTagsExecute(r)
+func (r ApiGetOrgRobotFederationRequest) Execute() (*http.Response, error) {
+	return r.ApiService.GetOrgRobotFederationExecute(r)
 }
 
 /*
-ListRepoTags Method for ListRepoTags
+GetOrgRobotFederation Method for GetOrgRobotFederation
+
+Returns the federation configuration for the organization's robot.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param repository The full path of the repository. e.g. namespace/name
-	@return ApiListRepoTagsRequest
+	@param robotShortname The short name for the robot, without any user or organization prefix
+	@param orgname The name of the organization
+	@return ApiGetOrgRobotFederationRequest
 */
-func (a *TagAPIService) ListRepoTags(ctx context.Context, repository string) ApiListRepoTagsRequest {
-	return ApiListRepoTagsRequest{
-		ApiService: a,
-		ctx:        ctx,
-		repository: repository,
+func (a *RobotAPIService) GetOrgRobotFederation(ctx context.Context, robotShortname string, orgname string) ApiGetOrgRobotFederationRequest {
+	return ApiGetOrgRobotFederationRequest{
+		ApiService:     a,
+		ctx:            ctx,
+		robotShortname: robotShortname,
+		orgname:        orgname,
 	}
 }
 
 // Execute executes the request
-func (a *TagAPIService) ListRepoTagsExecute(r ApiListRepoTagsRequest) (*http.Response, error) {
+func (a *RobotAPIService) GetOrgRobotFederationExecute(r ApiGetOrgRobotFederationRequest) (*http.Response, error) {
 	var (
 		localVarHTTPMethod = http.MethodGet
 		localVarPostBody   interface{}
 		formFiles          []formFile
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TagAPIService.ListRepoTags")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RobotAPIService.GetOrgRobotFederation")
 	if err != nil {
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/api/v1/repository/{repository}/tag/"
-	localVarPath = strings.Replace(localVarPath, "{"+"repository"+"}", url.PathEscape(parameterValueToString(r.repository, "repository")), -1)
+	localVarPath := localBasePath + "/api/v1/organization/{orgname}/robots/{robot_shortname}/federation"
+	localVarPath = strings.Replace(localVarPath, "{"+"robot_shortname"+"}", url.PathEscape(parameterValueToString(r.robotShortname, "robotShortname")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"orgname"+"}", url.PathEscape(parameterValueToString(r.orgname, "orgname")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if r.onlyActiveTags != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "onlyActiveTags", r.onlyActiveTags, "form", "")
-	}
-	if r.page != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "page", r.page, "form", "")
-	}
-	if r.limit != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "limit", r.limit, "form", "")
-	}
-	if r.filterTagName != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "filter_tag_name", r.filterTagName, "form", "")
-	}
-	if r.specificTag != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "specificTag", r.specificTag, "form", "")
-	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
@@ -499,59 +160,59 @@ func (a *TagAPIService) ListRepoTagsExecute(r ApiListRepoTagsRequest) (*http.Res
 	return localVarHTTPResponse, nil
 }
 
-type ApiRestoreTagRequest struct {
-	ctx        context.Context
-	ApiService *TagAPIService
-	repository string
-	tag        string
-	body       *RestoreTag
+type ApiCreateOrgRobotFederationRequest struct {
+	ctx            context.Context
+	ApiService     *RobotAPIService
+	robotShortname string
+	orgname        string
+	body           *[]CreateRobotFederationInner
 }
 
 // Request body contents.
-func (r ApiRestoreTagRequest) Body(body RestoreTag) ApiRestoreTagRequest {
+func (r ApiCreateOrgRobotFederationRequest) Body(body []CreateRobotFederationInner) ApiCreateOrgRobotFederationRequest {
 	r.body = &body
 	return r
 }
 
-func (r ApiRestoreTagRequest) Execute() (*http.Response, error) {
-	return r.ApiService.RestoreTagExecute(r)
+func (r ApiCreateOrgRobotFederationRequest) Execute() (*http.Response, error) {
+	return r.ApiService.CreateOrgRobotFederationExecute(r)
 }
 
 /*
-RestoreTag Method for RestoreTag
+CreateOrgRobotFederation Method for CreateOrgRobotFederation
 
-Restores a repository tag back to a previous image in the repository.
+Create or update federation configuration for the organization's robot.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param repository The full path of the repository. e.g. namespace/name
-	@param tag The name of the tag
-	@return ApiRestoreTagRequest
+	@param robotShortname The short name for the robot, without any user or organization prefix
+	@param orgname The name of the organization
+	@return ApiCreateOrgRobotFederationRequest
 */
-func (a *TagAPIService) RestoreTag(ctx context.Context, repository string, tag string) ApiRestoreTagRequest {
-	return ApiRestoreTagRequest{
-		ApiService: a,
-		ctx:        ctx,
-		repository: repository,
-		tag:        tag,
+func (a *RobotAPIService) CreateOrgRobotFederation(ctx context.Context, robotShortname string, orgname string) ApiCreateOrgRobotFederationRequest {
+	return ApiCreateOrgRobotFederationRequest{
+		ApiService:     a,
+		ctx:            ctx,
+		robotShortname: robotShortname,
+		orgname:        orgname,
 	}
 }
 
 // Execute executes the request
-func (a *TagAPIService) RestoreTagExecute(r ApiRestoreTagRequest) (*http.Response, error) {
+func (a *RobotAPIService) CreateOrgRobotFederationExecute(r ApiCreateOrgRobotFederationRequest) (*http.Response, error) {
 	var (
 		localVarHTTPMethod = http.MethodPost
 		localVarPostBody   interface{}
 		formFiles          []formFile
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TagAPIService.RestoreTag")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RobotAPIService.CreateOrgRobotFederation")
 	if err != nil {
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/api/v1/repository/{repository}/tag/{tag}/restore"
-	localVarPath = strings.Replace(localVarPath, "{"+"repository"+"}", url.PathEscape(parameterValueToString(r.repository, "repository")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"tag"+"}", url.PathEscape(parameterValueToString(r.tag, "tag")), -1)
+	localVarPath := localBasePath + "/api/v1/organization/{orgname}/robots/{robot_shortname}/federation"
+	localVarPath = strings.Replace(localVarPath, "{"+"robot_shortname"+"}", url.PathEscape(parameterValueToString(r.robotShortname, "robotShortname")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"orgname"+"}", url.PathEscape(parameterValueToString(r.orgname, "orgname")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -559,6 +220,148 @@ func (a *TagAPIService) RestoreTagExecute(r ApiRestoreTagRequest) (*http.Respons
 	if r.body == nil {
 		return nil, reportError("body is required and must be specified")
 	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"*/*"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	// body params
+	localVarPostBody = r.body
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 400 {
+			var v ApiError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 401 {
+			var v ApiError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 403 {
+			var v ApiError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 404 {
+			var v ApiError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarHTTPResponse, newErr
+		}
+		return localVarHTTPResponse, newErr
+	}
+
+	return localVarHTTPResponse, nil
+}
+
+type ApiDeleteOrgRobotFederationRequest struct {
+	ctx            context.Context
+	ApiService     *RobotAPIService
+	robotShortname string
+	orgname        string
+}
+
+func (r ApiDeleteOrgRobotFederationRequest) Execute() (*http.Response, error) {
+	return r.ApiService.DeleteOrgRobotFederationExecute(r)
+}
+
+/*
+DeleteOrgRobotFederation Method for DeleteOrgRobotFederation
+
+Delete federation configuration for the organization's robot.
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param robotShortname The short name for the robot, without any user or organization prefix
+	@param orgname The name of the organization
+	@return ApiDeleteOrgRobotFederationRequest
+*/
+func (a *RobotAPIService) DeleteOrgRobotFederation(ctx context.Context, robotShortname string, orgname string) ApiDeleteOrgRobotFederationRequest {
+	return ApiDeleteOrgRobotFederationRequest{
+		ApiService:     a,
+		ctx:            ctx,
+		robotShortname: robotShortname,
+		orgname:        orgname,
+	}
+}
+
+// Execute executes the request
+func (a *RobotAPIService) DeleteOrgRobotFederationExecute(r ApiDeleteOrgRobotFederationRequest) (*http.Response, error) {
+	var (
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RobotAPIService.DeleteOrgRobotFederation")
+	if err != nil {
+		return nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/organization/{orgname}/robots/{robot_shortname}/federation"
+	localVarPath = strings.Replace(localVarPath, "{"+"robot_shortname"+"}", url.PathEscape(parameterValueToString(r.robotShortname, "robotShortname")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"orgname"+"}", url.PathEscape(parameterValueToString(r.orgname, "orgname")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -577,8 +380,6 @@ func (a *TagAPIService) RestoreTagExecute(r ApiRestoreTagRequest) (*http.Respons
 	if localVarHTTPHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
-	// body params
-	localVarPostBody = r.body
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return nil, err
